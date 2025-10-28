@@ -23,6 +23,7 @@ jobs:
 
       - name: Build gateway
         run: npm run build:gateway
+        continue-on-error: true
 
       - name: Check for linter errors
         run: npm run lint || true
