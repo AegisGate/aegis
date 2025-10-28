@@ -1,0 +1,23 @@
+{
+  "name": "prompt-firewall",
+  "version": "0.1.0",
+  "description": "Extension and gateway to detect and neutralize prompt injection attacks",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:gateway": "npm run dev --workspace=@prompt-firewall/gateway",
+    "build:gateway": "npm run build --workspace=@prompt-firewall/gateway",
+    "start:gateway": "npm run start --workspace=@prompt-firewall/gateway"
+  },
+  "keywords": [
+    "prompt-injection",
+    "security",
+    "browser-extension",
+    "gateway"
+  ],
+  "author": "",
+  "license": "MIT"
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@prompt-firewall/rules",
+  "version": "0.1.0",
+  "description": "Rule definitions for prompt injection detection",
+  "main": "index.ts",
+  "scripts": {
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  }
+}
