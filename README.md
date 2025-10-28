@@ -12,7 +12,7 @@ Browser → Extension (content script) → Gateway → Rules Engine
 - **Gateway**: Local server that scans text using regex patterns
 - **Rules Engine**: JSON-based rules with severity levels (low, medium, high)
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
