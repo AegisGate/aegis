@@ -3,12 +3,7 @@
  * Scrapes visible and hidden text and sends to background for analysis
  */
 
-// Inline types (can't use imports in content scripts)
-interface TextSource {
-  type: "visible" | "hidden" | "comment" | "meta" | "attribute" | "script";
-  content: string;
-  element?: string;
-}
+import { TextSource, ScanResult } from "../utils/types.js";
 
 // Track if we've already scanned this page
 let hasScanned = false;

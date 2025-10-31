@@ -21,10 +21,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build gateway
-        run: npm run build:gateway
-        continue-on-error: true
+      - name: Build extension
+        run: npm run build
 
-      - name: Check for linter errors
-        run: npm run lint || true
+      - name: Check build output
+        run: |
+          if [ ! -d "apps/extension/dist" ]; then
+            echo "Build failed - dist directory not found"
+            exit 1
+          fi
 

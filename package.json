@@ -1,7 +1,7 @@
 {
   "name": "prompt-firewall",
   "version": "0.1.0",
-  "description": "Extension and gateway to detect and neutralize prompt injection attacks",
+  "description": "Browser extension to detect and neutralize prompt injection attacks",
   "type": "module",
   "workspaces": [
     "apps/*",
@@ -17,7 +17,7 @@
     "prompt-injection",
     "security",
     "browser-extension",
-    "gateway"
+    "ai-security"
   ],
   "author": "",
   "license": "MIT"

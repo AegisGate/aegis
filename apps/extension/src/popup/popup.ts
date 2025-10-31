@@ -284,7 +284,7 @@ rulesModal.addEventListener("click", (e) => {
 // About link
 aboutLink.addEventListener("click", (e) => {
   e.preventDefault();
-  chrome.tabs.create({ url: "https://github.com/yourusername/prompt-firewall" });
+  chrome.tabs.create({ url: "https://github.com/kadhirash/prompt-firewall" });
 });
 
 // Initialize
