@@ -1,0 +1,24 @@
+{
+  "name": "prompt-firewall",
+  "version": "0.1.0",
+  "description": "Browser extension to detect and neutralize prompt injection attacks",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=@prompt-firewall/extension",
+    "dev": "npm run watch --workspace=@prompt-firewall/extension",
+    "build:extension": "npm run build --workspace=@prompt-firewall/extension",
+    "watch": "npm run watch --workspace=@prompt-firewall/extension"
+  },
+  "keywords": [
+    "prompt-injection",
+    "security",
+    "browser-extension",
+    "ai-security"
+  ],
+  "author": "",
+  "license": "MIT"
+}
