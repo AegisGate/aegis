@@ -1,0 +1,25 @@
+{
+  "name": "@prompt-firewall/extension",
+  "version": "0.1.0",
+  "description": "Browser extension to detect and neutralize prompt injection attacks",
+  "type": "module",
+  "scripts": {
+    "prebuild": "node scripts/create-simple-icons.js",
+    "build": "tsc && npm run copy-assets",
+    "copy-assets": "node scripts/copy-assets.js",
+    "watch": "tsc --watch",
+    "dev": "npm run build -- --watch"
+  },
+  "keywords": [
+    "prompt-injection",
+    "security",
+    "browser-extension"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chrome": "^0.0.254",
+    "typescript": "^5.3.0"
+  }
+}
+

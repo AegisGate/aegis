@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompt Firewall</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">
+        <span class="shield">🛡️</span>
+        <h1>Prompt Firewall</h1>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="enabledToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <!-- Status Section -->
+    <div class="status" id="status">
+      <div class="status-indicator safe">
+        <span class="status-dot"></span>
+        <span class="status-text">Scanning...</span>
+      </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats" id="stats">
+      <div class="stat-item">
+        <div class="stat-value" id="totalThreats">-</div>
+        <div class="stat-label">Threats</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value high" id="highThreats">-</div>
+        <div class="stat-label">High</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value medium" id="mediumThreats">-</div>
+        <div class="stat-label">Medium</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value low" id="lowThreats">-</div>
+        <div class="stat-label">Low</div>
+      </div>
+    </div>
+
+    <!-- Detections List -->
+    <div class="detections" id="detections">
+      <div class="section-header">
+        <h3>Detected Threats</h3>
+      </div>
+      <div id="detectionsList">
+        <div class="empty-state">
+          No threats detected on this page ✓
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn btn-secondary" id="rescanBtn">
+        <span>🔄</span> Rescan Page
+      </button>
+      <button class="btn btn-secondary" id="viewRulesBtn">
+        <span>📋</span> View Rules
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <span id="rulesCount">Loading...</span>
+      <a href="#" id="aboutLink">About</a>
+    </div>
+  </div>
+
+  <!-- Rules Modal -->
+  <div class="modal" id="rulesModal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Detection Rules</h2>
+        <button class="close-btn" id="closeModal">✕</button>
+      </div>
+      <div class="modal-body" id="rulesListModal">
+        Loading rules...
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="popup/popup.js"></script>
+</body>
+</html>
+
+
