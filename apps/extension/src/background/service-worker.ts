@@ -1,14 +1,23 @@
 /**
- * Background service worker - Handles rule matching and storage
+ * Background service worker - Central hub for the extension
+ * 
+ * This worker runs continuously in the background and handles:
+ * - Loading detection rules from rules/core.json
+ * - Processing scan requests from content scripts
+ * - Storing scan history in local storage
+ * - Updating the extension badge with threat counts
  */
 
 import { Rule, RulesConfig, ScanResult, StorageData } from "../utils/types.js";
 import { createScanResult } from "../utils/scanner.js";
+import { MAX_HISTORY_SIZE, RISK_COLORS } from "../utils/constants.js";
 
+// Cache rules in memory for fast access
 let cachedRules: Rule[] = [];
 
 /**
- * Initialize extension - Load rules
+ * Initialize extension on install/startup
+ * Loads detection rules and sets up default storage
  */
 async function initialize() {
   console.log("[Prompt Firewall] Initializing background service worker...");
@@ -36,24 +45,25 @@ async function initialize() {
 
 /**
  * Handle scan request from content script
+ * This is the main entry point when a page is scanned
  */
 async function handleScanPage(data: any) {
   const { url, textSources } = data;
   
   try {
-    // Check if extension is enabled
+    // Check if user has disabled protection
     const { enabled } = await chrome.storage.local.get("enabled");
     if (!enabled) {
       return { result: null, enabled: false };
     }
 
-    // Perform scan
+    // Run detection rules against extracted text
     const result = createScanResult(url, textSources, cachedRules);
     
-    // Store result
+    // Save to history for popup display
     await storeScanResult(result);
     
-    // Update badge
+    // Update badge icon with threat count
     updateBadge(result);
     
     console.log(`[Prompt Firewall] Scan complete for ${url}: ${result.riskLevel} risk, ${result.matches.length} matches`);
@@ -67,13 +77,15 @@ async function handleScanPage(data: any) {
 
 /**
  * Store scan result in history
+ * Keeps most recent scans for user reference (limited to prevent storage bloat)
  */
 async function storeScanResult(result: ScanResult) {
   try {
     const { scanHistory = [] } = await chrome.storage.local.get("scanHistory");
     
-    // Add new result and keep last 100
-    const updatedHistory = [result, ...scanHistory].slice(0, 100);
+    // Keep last 100 scans to avoid using too much storage
+    // Chrome extensions have ~5MB local storage limit
+    const updatedHistory = [result, ...scanHistory].slice(0, MAX_HISTORY_SIZE);
     
     await chrome.storage.local.set({
       lastScan: result,
@@ -85,29 +97,27 @@ async function storeScanResult(result: ScanResult) {
 }
 
 /**
- * Update extension badge
+ * Update extension badge to show threat count
+ * Badge appears as a small number on the extension icon
  */
 function updateBadge(result: ScanResult) {
   const matchCount = result.matches.length;
   
+  // Show number of detections, or nothing if page is clean
   if (matchCount === 0) {
     chrome.action.setBadgeText({ text: "" });
   } else {
     chrome.action.setBadgeText({ text: String(matchCount) });
   }
   
-  // Set badge color based on risk
-  const color = 
-    result.riskLevel === "high" ? "#dc2626" :
-    result.riskLevel === "medium" ? "#f59e0b" :
-    result.riskLevel === "low" ? "#3b82f6" :
-    "#10b981";
-  
+  // Color code by risk level: red = high, orange = medium, blue = low, green = safe
+  const color = RISK_COLORS[result.riskLevel] || RISK_COLORS.safe;
   chrome.action.setBadgeBackgroundColor({ color });
 }
 
 /**
- * Get current status
+ * Get current extension status
+ * Returns enabled state, last scan result, and rule count
  */
 async function getStatus(tabId?: number) {
   try {
@@ -125,7 +135,8 @@ async function getStatus(tabId?: number) {
 }
 
 /**
- * Toggle enabled state
+ * Toggle protection on/off
+ * When disabled, pages are not scanned
  */
 async function toggleEnabled() {
   try {
@@ -134,10 +145,10 @@ async function toggleEnabled() {
     
     await chrome.storage.local.set({ enabled: newState });
     
-    // Update badge
+    // Show "OFF" badge when disabled
     if (!newState) {
       chrome.action.setBadgeText({ text: "OFF" });
-      chrome.action.setBadgeBackgroundColor({ color: "#6b7280" });
+      chrome.action.setBadgeBackgroundColor({ color: RISK_COLORS.disabled });
     } else {
       chrome.action.setBadgeText({ text: "" });
     }
@@ -150,13 +161,14 @@ async function toggleEnabled() {
 }
 
 /**
- * Get rules
+ * Get all loaded detection rules
+ * Used by popup to display rule information
  */
 function getRules() {
   return { rules: cachedRules };
 }
 
-// Message handler
+// Message handler - routes messages from content scripts and popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   (async () => {
     try {

@@ -1,11 +1,15 @@
 /**
  * Popup UI script
+ * 
+ * This handles the extension popup that appears when you click the extension icon.
+ * Shows scan results, threat statistics, and allows toggling protection on/off.
  */
 
-import { ScanResult, Rule } from "../utils/types.js";
+import { ScanResult, Rule, DetectionMatch } from "../utils/types.js";
 import { getDetectionStats } from "../utils/scanner.js";
+import { RESCAN_DELAY_MS } from "../utils/constants.js";
 
-// DOM elements
+// Get references to DOM elements in popup.html
 const enabledToggle = document.getElementById("enabledToggle") as HTMLInputElement;
 const statusDiv = document.getElementById("status") as HTMLElement;
 const totalThreats = document.getElementById("totalThreats") as HTMLElement;
@@ -22,7 +26,8 @@ const rulesListModal = document.getElementById("rulesListModal") as HTMLElement;
 const aboutLink = document.getElementById("aboutLink") as HTMLElement;
 
 /**
- * Initialize popup
+ * Initialize popup when it opens
+ * Loads current status and displays the last scan result
  */
 async function initialize() {
   try {
@@ -48,10 +53,11 @@ async function initialize() {
 }
 
 /**
- * Display scan result
+ * Display scan result in the popup UI
+ * Updates the risk indicator, stats, and list of detections
  */
 function displayScanResult(result: ScanResult) {
-  // Update status indicator
+  // Update the colored status indicator at the top
   const statusIndicator = statusDiv.querySelector(".status-indicator");
   if (statusIndicator) {
     statusIndicator.className = `status-indicator ${result.riskLevel}`;
@@ -91,13 +97,15 @@ function getRiskLevelText(level: string): string {
 }
 
 /**
- * Display detections
+ * Display list of detected threats
+ * Shows each rule type only once to avoid cluttering the UI
  */
 function displayDetections(result: ScanResult) {
   detectionsList.innerHTML = "";
   
-  // Group by rule to avoid duplicates
-  const uniqueRules = new Map<string, typeof result.matches[0]>();
+  // Deduplicate by rule ID - show each rule type only once
+  // even if it matched multiple times on the page
+  const uniqueRules = new Map<string, DetectionMatch>();
   result.matches.forEach((match) => {
     if (!uniqueRules.has(match.rule.id)) {
       uniqueRules.set(match.rule.id, match);
@@ -133,7 +141,8 @@ function showEmptyState() {
 }
 
 /**
- * Display rules in modal
+ * Display all detection rules in the modal view
+ * Shown when user clicks "View Rules" button
  */
 async function displayRules() {
   try {
@@ -166,7 +175,8 @@ async function displayRules() {
 }
 
 /**
- * Send message to background script
+ * Send message to background worker and wait for response
+ * Wraps Chrome messaging API in a Promise for cleaner async/await code
  */
 function sendMessage(message: any): Promise<any> {
   return new Promise((resolve, reject) => {
@@ -181,7 +191,8 @@ function sendMessage(message: any): Promise<any> {
 }
 
 /**
- * Send message to active tab
+ * Send message to content script in the active tab
+ * Used for triggering rescans
  */
 async function sendMessageToTab(message: any): Promise<any> {
   return new Promise(async (resolve, reject) => {
@@ -205,7 +216,8 @@ async function sendMessageToTab(message: any): Promise<any> {
 }
 
 /**
- * Escape HTML
+ * Escape HTML to prevent XSS when displaying user content
+ * Uses browser's built-in text escaping
  */
 function escapeHtml(text: string): string {
   const div = document.createElement("div");
@@ -238,15 +250,16 @@ enabledToggle.addEventListener("change", async () => {
   }
 });
 
-// Rescan page
+// Rescan current page
 rescanBtn.addEventListener("click", async () => {
   try {
     rescanBtn.disabled = true;
     rescanBtn.textContent = "⏳ Scanning...";
     
+    // Tell content script to scan again
     await sendMessageToTab({ type: "RESCAN" });
     
-    // Wait a bit then refresh status
+    // Give content script time to complete scan and send results to background
     setTimeout(async () => {
       const status = await sendMessage({ type: "GET_STATUS" });
       if (status?.lastScan) {
@@ -255,7 +268,7 @@ rescanBtn.addEventListener("click", async () => {
       
       rescanBtn.disabled = false;
       rescanBtn.innerHTML = '<span>🔄</span> Rescan Page';
-    }, 1000);
+    }, RESCAN_DELAY_MS);
   } catch (error) {
     console.error("[Prompt Firewall] Error rescanning:", error);
     rescanBtn.disabled = false;

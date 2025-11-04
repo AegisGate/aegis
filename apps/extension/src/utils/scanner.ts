@@ -1,11 +1,16 @@
 /**
  * Scanning and detection utilities
+ * 
+ * This module handles pattern matching against detection rules
+ * and calculates risk levels based on the severity of matches found.
  */
 
 import { Rule, DetectionMatch, ScanResult, TextSource } from "./types.js";
+import { CONTEXT_CHARS, RISK_THRESHOLDS } from "./constants.js";
 
 /**
- * Match text against rules and return detected patterns
+ * Match text against detection rules and return all matches found
+ * Each match includes the matched text and surrounding context for display
  */
 export function matchRules(text: string, rules: Rule[]): DetectionMatch[] {
   const matches: DetectionMatch[] = [];
@@ -17,8 +22,10 @@ export function matchRules(text: string, rules: Rule[]): DetectionMatch[] {
       
       while ((match = regex.exec(text)) !== null) {
         const matchedText = match[0];
-        const contextStart = Math.max(0, match.index - 50);
-        const contextEnd = Math.min(text.length, match.index + matchedText.length + 50);
+        
+        // Extract surrounding text for context (50 chars before and after)
+        const contextStart = Math.max(0, match.index - CONTEXT_CHARS);
+        const contextEnd = Math.min(text.length, match.index + matchedText.length + CONTEXT_CHARS);
         const context = text.slice(contextStart, contextEnd);
         
         matches.push({
@@ -36,34 +43,46 @@ export function matchRules(text: string, rules: Rule[]): DetectionMatch[] {
 }
 
 /**
- * Calculate overall risk level based on matched rules
+ * Calculate overall page risk based on detection severity and count
+ * 
+ * Risk escalation rules:
+ * - Any 1+ high severity = HIGH risk (immediate threat)
+ * - 3+ medium severity = HIGH risk (coordinated attack with multiple vectors)
+ * - 1-2 medium severity = MEDIUM risk (potential threat)
+ * - Only low severity = LOW risk (suspicious but not dangerous)
+ * - No matches = SAFE
  */
 export function calculateRiskLevel(
   matches: DetectionMatch[]
 ): "safe" | "low" | "medium" | "high" {
   if (matches.length === 0) return "safe";
 
-  const hasHigh = matches.some((m) => m.rule.severity === "high");
-  const hasMedium = matches.some((m) => m.rule.severity === "medium");
+  // Count detections by severity level
   const highCount = matches.filter((m) => m.rule.severity === "high").length;
   const mediumCount = matches.filter((m) => m.rule.severity === "medium").length;
 
-  // Multiple high-severity matches
-  if (highCount >= 2) return "high";
+  // Any high-severity detection = immediate high risk
+  if (highCount >= RISK_THRESHOLDS.HIGH_SEVERITY_FOR_HIGH_RISK) {
+    return "high";
+  }
   
-  // Single high-severity match
-  if (hasHigh) return "high";
+  // 3+ medium detections suggest coordinated attack = high risk
+  if (mediumCount >= RISK_THRESHOLDS.MEDIUM_COUNT_FOR_HIGH_RISK) {
+    return "high";
+  }
   
-  // Multiple medium-severity matches
-  if (mediumCount >= 3) return "high";
-  if (mediumCount >= 1) return "medium";
+  // 1-2 medium detections = medium risk
+  if (mediumCount >= RISK_THRESHOLDS.MEDIUM_COUNT_FOR_MEDIUM_RISK) {
+    return "medium";
+  }
   
-  // Only low-severity matches
+  // Everything else is low severity only
   return "low";
 }
 
 /**
- * Redact matched patterns from text
+ * Redact matched patterns from text (replaces with [REDACTED] placeholder)
+ * Useful if you want to safely display page content with injections removed
  */
 export function redactText(text: string, matches: DetectionMatch[]): string {
   let redactedText = text;
@@ -81,20 +100,21 @@ export function redactText(text: string, matches: DetectionMatch[]): string {
 }
 
 /**
- * Create a scan result object
+ * Create a complete scan result for a page
+ * Combines text extraction, pattern matching, and risk calculation
  */
 export function createScanResult(
   url: string,
   textSources: TextSource[],
   rules: Rule[]
 ): ScanResult {
-  // Combine all text sources
+  // Combine all extracted text sources into one string for scanning
   const scannedText = textSources.map((s) => s.content).join("\n\n");
   
-  // Match against rules
+  // Run pattern matching against all detection rules
   const matches = matchRules(scannedText, rules);
   
-  // Calculate risk level
+  // Calculate overall page risk based on what was found
   const riskLevel = calculateRiskLevel(matches);
 
   return {
@@ -108,7 +128,8 @@ export function createScanResult(
 }
 
 /**
- * Get a summary of detection statistics
+ * Get breakdown of detections by severity level
+ * Used for displaying stats in the popup UI
  */
 export function getDetectionStats(result: ScanResult) {
   const highSeverity = result.matches.filter((m) => m.rule.severity === "high").length;
