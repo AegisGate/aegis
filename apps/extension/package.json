@@ -1,5 +1,5 @@
 {
-  "name": "@prompt-firewall/extension",
+  "name": "@aegis/extension",
   "version": "0.1.0",
   "description": "Browser extension to detect and neutralize prompt injection attacks",
   "type": "module",
