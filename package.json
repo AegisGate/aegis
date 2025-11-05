@@ -1,0 +1,24 @@
+{
+  "name": "aegis",
+  "version": "0.1.0",
+  "description": "Browser extension to detect and neutralize prompt injection attacks",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=@aegis/extension",
+    "dev": "npm run watch --workspace=@aegis/extension",
+    "build:extension": "npm run build --workspace=@aegis/extension",
+    "watch": "npm run watch --workspace=@aegis/extension"
+  },
+  "keywords": [
+    "prompt-injection",
+    "security",
+    "browser-extension",
+    "ai-security"
+  ],
+  "author": "",
+  "license": "MIT"
+}

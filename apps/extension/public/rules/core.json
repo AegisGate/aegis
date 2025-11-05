@@ -1,0 +1,174 @@
+{
+  "rules": [
+    {
+      "id": "command_injection",
+      "name": "Command Injection",
+      "pattern": "(execute|run|download|install|delete|transfer|send\\s+email)\\s+[^.]{0,50}(script|file|command|payment|funds)",
+      "severity": "high",
+      "description": "Attempts to inject executable commands or trigger actions"
+    },
+    {
+      "id": "navigation_hijack",
+      "name": "Navigation Hijacking",
+      "pattern": "(navigate\\s+to|go\\s+to|visit|open|redirect\\s+to)\\s+https?://[^\\s]+\\.(exe|bat|sh|zip|scr)",
+      "severity": "high",
+      "description": "Attempts to redirect to potentially malicious URLs"
+    },
+    {
+      "id": "ignore_instructions",
+      "name": "Instruction Override",
+      "pattern": "(ignore|disregard|forget|override|skip)\\s+(all|your|the|previous|initial|original)\\s+(instructions?|prompts?|directives?|guidelines?|rules?|commands?)",
+      "severity": "high",
+      "description": "Direct instruction override attempt"
+    },
+    {
+      "id": "system_reset",
+      "name": "System Reset",
+      "pattern": "(system|instructions?|directives?|settings?)\\s*(cancelled?|invalid|void|reset|cleared?|disabled?|null)",
+      "severity": "high",
+      "description": "Attempts to reset or invalidate system instructions"
+    },
+    {
+      "id": "new_instructions",
+      "name": "New Instructions",
+      "pattern": "(new|updated|revised)\\s+(instructions?|directives?|guidelines?|rules?)\\s*(:|are|now)",
+      "severity": "high",
+      "description": "Attempts to replace system instructions with new ones"
+    },
+    {
+      "id": "role_change",
+      "name": "Role Manipulation",
+      "pattern": "(you\\s+are\\s+(now|no\\s+longer)|from\\s+now\\s+on|act\\s+as|pretend\\s+to\\s+be|roleplay\\s+as)\\s+.{0,50}(unrestricted|jailbroken|without\\s+(rules|ethics|guidelines|restrictions?|filters?))",
+      "severity": "high",
+      "description": "Attempts to change AI identity or role to bypass restrictions"
+    },
+    {
+      "id": "dan_jailbreak",
+      "name": "Known Jailbreak Personas",
+      "pattern": "(DAN|do\\s+anything\\s+now|developer\\s+mode|god\\s+mode|unrestricted\\s+mode|jailbreak\\s+mode|admin\\s+mode)",
+      "severity": "high",
+      "description": "Known jailbreak persona activation"
+    },
+    {
+      "id": "unrestricted_claim",
+      "name": "Unrestricted Claims",
+      "pattern": "you\\s+(are|have)\\s+(no|zero|without)\\s+(restrictions?|limitations?|filters?|rules?|guidelines?|ethics?)",
+      "severity": "high",
+      "description": "Claims that the AI has no restrictions"
+    },
+    {
+      "id": "prompt_extraction",
+      "name": "Prompt Extraction",
+      "pattern": "(reveal|show|tell\\s+me|what\\s+(is|are)|display|print|output)\\s+.{0,30}(system\\s+prompt|instructions?|directives?|configuration|initial\\s+prompt|guidelines?)",
+      "severity": "high",
+      "description": "Attempts to extract system prompt or instructions"
+    },
+    {
+      "id": "credential_extraction",
+      "name": "Credential Extraction",
+      "pattern": "(password|api[_\\s]?key|token|secret|credentials?|private\\s+key)\\s+(is|for|to|equals?|=)",
+      "severity": "high",
+      "description": "Attempts to extract credentials or secrets"
+    },
+    {
+      "id": "fake_system_message",
+      "name": "Fake System Messages",
+      "pattern": "\\[(system|admin|verified|approved|developer|internal)\\s*(message|note|command)?\\]\\s*:",
+      "severity": "medium",
+      "description": "Fake system or admin messages attempting to appear official"
+    },
+    {
+      "id": "fake_verification",
+      "name": "Fake Verification Markers",
+      "pattern": "(verified_safe|security_approved|admin_override|trusted_content|authorized|authenticated)\\s*(start|begin|enabled?|true|active)",
+      "severity": "medium",
+      "description": "Fake verification or authorization markers"
+    },
+    {
+      "id": "fake_end_marker",
+      "name": "Fake Session End",
+      "pattern": "(end\\s+of\\s+(instructions?|system\\s+prompt|guidelines)|instructions?\\s+end|\\[\\s*/\\s*system\\s*\\])",
+      "severity": "medium",
+      "description": "Fake markers indicating end of system instructions"
+    },
+    {
+      "id": "hypothetical_jailbreak",
+      "name": "Hypothetical Scenarios",
+      "pattern": "(hypothetically|imagine|pretend|suppose|let's\\s+say|in\\s+a\\s+(fictional|alternate)\\s+(world|scenario|universe|reality)).{0,50}(no\\s+rules|unrestricted|without\\s+(ethics|guidelines|restrictions?)|anything\\s+goes)",
+      "severity": "medium",
+      "description": "Hypothetical framing to bypass restrictions"
+    },
+    {
+      "id": "educational_bypass",
+      "name": "Educational Bypass",
+      "pattern": "(for\\s+(educational|research|academic|testing)\\s+purposes|as\\s+an?\\s+(experiment|test|demonstration)).{0,50}(ignore|bypass|disable|without)\\s+(rules|guidelines|restrictions?|ethics|safety)",
+      "severity": "medium",
+      "description": "Using educational framing to bypass safety"
+    },
+    {
+      "id": "completion_trap",
+      "name": "Completion Traps",
+      "pattern": "(complete\\s+this|fill\\s+in\\s+the\\s+blank|continue\\s+this|finish\\s+this).{0,30}(password|secret|token|key|bypass|hack|exploit)",
+      "severity": "medium",
+      "description": "Completion-based information extraction attempts"
+    },
+    {
+      "id": "encoded_instruction",
+      "name": "Encoded Instructions",
+      "pattern": "(base64|hex|rot13|decode|decrypt|decode\\s+this|encoded\\s+message)\\s*:\\s*[A-Za-z0-9+/=]{20,}",
+      "severity": "medium",
+      "description": "Potentially encoded malicious instructions"
+    },
+    {
+      "id": "separator_bypass",
+      "name": "Separator Bypass",
+      "pattern": "[a-z]-[a-z]-[a-z]-[a-z]-[a-z]\\s+-[a-z]-[a-z]-[a-z]",
+      "severity": "low",
+      "description": "Character separation used to bypass detection"
+    },
+    {
+      "id": "simulation_mode",
+      "name": "Simulation Mode",
+      "pattern": "(simulation|simulator|sandbox)\\s+mode\\s+(enabled?|active|on).{0,50}(no\\s+(restrictions?|rules)|unrestricted|admin)",
+      "severity": "medium",
+      "description": "Fake simulation mode to bypass restrictions"
+    },
+    {
+      "id": "authority_impersonation",
+      "name": "Authority Impersonation",
+      "pattern": "(I\\s+am\\s+(the|your)\\s+(admin|developer|creator|owner|master)|as\\s+(the\\s+)?(admin|developer|creator|owner)).{0,50}(command|order|require|demand|instruct)",
+      "severity": "high",
+      "description": "Impersonating authority figures to issue commands"
+    },
+    {
+      "id": "system_message_injection",
+      "name": "System Message Injection",
+      "pattern": "(system|assistant)\\s+(message|response|note)\\s*:?\\s*.{0,50}(ignore|override|disable|bypass)",
+      "severity": "high",
+      "description": "Injecting fake system-level messages"
+    },
+    {
+      "id": "delimiter_confusion",
+      "name": "Delimiter Confusion",
+      "pattern": "={3,}|#{3,}|-{3,}|\\*{3,}.{0,20}(end|start|begin).{0,20}(system|instructions?|prompt)",
+      "severity": "low",
+      "description": "Using delimiters to confuse prompt boundaries"
+    },
+    {
+      "id": "privilege_escalation",
+      "name": "Privilege Escalation",
+      "pattern": "(grant|give|enable|activate)\\s+(me|user)\\s+(admin|root|sudo|elevated|full)\\s+(access|rights|permissions?|privileges?)",
+      "severity": "high",
+      "description": "Attempts to escalate privileges"
+    },
+    {
+      "id": "debug_mode_activation",
+      "name": "Debug Mode Activation",
+      "pattern": "(debug|verbose|diagnostic)\\s+mode\\s+(on|enabled?|active).{0,50}(show|reveal|display|print)\\s+(all|everything|internals|config)",
+      "severity": "medium",
+      "description": "Attempts to activate debug mode to reveal information"
+    }
+  ]
+}
+
+

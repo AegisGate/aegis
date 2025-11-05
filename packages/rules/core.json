@@ -1,0 +1,32 @@
+{
+  "rules": [
+    {
+      "id": "ignore_previous",
+      "name": "Ignore Previous Instructions",
+      "pattern": "ignore\\s+(the\\s+)?(all\\s+)?previous\\s+instructions",
+      "severity": "high",
+      "description": "Attempts to override system instructions"
+    },
+    {
+      "id": "role_play",
+      "name": "Role Playing Attack",
+      "pattern": "you are (now|now acting as)\\s+[^.]+\\.\\s*(ignore|forget|disregard)",
+      "severity": "high",
+      "description": "Attempts to make the AI impersonate another entity"
+    },
+    {
+      "id": "system_override",
+      "name": "System Override",
+      "pattern": "(system|assistant)\\s+message\\s*(:|=)\\s*[^\\n]*ignore",
+      "severity": "high",
+      "description": "Attempts to inject system-level commands"
+    },
+    {
+      "id": "jailbreak_attempt",
+      "name": "Jailbreak Pattern",
+      "pattern": "(act|pretend|simulate|roleplay) as (if\\s+)?you are (uncensored|unrestricted|unfiltered)",
+      "severity": "high",
+      "description": "Attempts to bypass safety restrictions"
+    }
+  ]
+}
